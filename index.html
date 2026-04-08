@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizzaria Donninha</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f2f2f2;
+}
+
+header {
+    background: #ea1d2c;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.container {
+    padding: 15px;
+}
+
+.item {
+    background: white;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+select, input {
+    margin-top: 5px;
+    padding: 5px;
+    width: 100%;
+}
+
+button {
+    background: #ea1d2c;
+    color: white;
+    border: none;
+    padding: 8px;
+    margin-top: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.carrinho {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    padding: 10px;
+    border-top: 2px solid #ccc;
+}
+
+.btn-wpp {
+    background: #25d366;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.fechado {
+    background: red;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>🍕 Pizzaria Donninha</h2>
+</header>
+
+<div id="status"></div>
+
+<div class="container">
+
+<input type="text" id="nome" placeholder="Seu nome">
+
+<div class="item">
+    <b>Calabresa</b><br>
+    <select id="tam1">
+        <option value="45">Pequena - R$45</option>
+        <option value="55">Média - R$55</option>
+        <option value="65">Grande - R$65</option>
+    </select>
+    <button onclick="add('Calabresa','tam1')">Adicionar</button>
+</div>
+
+<div class="item">
+    <b>Frango c/ Catupiry</b><br>
+    <select id="tam2">
+        <option value="65">Pequena - R$65</option>
+        <option value="75">Média - R$75</option>
+        <option value="85">Grande - R$85</option>
+    </select>
+    <button onclick="add('Frango c/ Catupiry','tam2')">Adicionar</button>
+</div>
+
+</div>
+
+<div class="carrinho">
+    <div id="lista"></div>
+    <b>Total: R$ <span id="total">0</span></b><br><br>
+    <button class="btn-wpp" onclick="enviar()">Enviar Pedido</button>
+</div>
+
+<script>
+let carrinho = [];
+let total = 0;
+
+function add(nome, selectId) {
+    let select = document.getElementById(selectId);
+    let preco = parseFloat(select.value);
+    let tamanho = select.options[select.selectedIndex].text;
+
+    carrinho.push({nome, tamanho, preco});
+    total += preco;
+
+    atualizar();
+}
+
+function remover(index) {
+    total -= carrinho[index].preco;
+    carrinho.splice(index, 1);
+    atualizar();
+}
+
+function atualizar() {
+    let lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    carrinho.forEach((item, i) => {
+        lista.innerHTML += `
+        <div>
+            ${item.nome} (${item.tamanho})
+            <button onclick="remover(${i})">❌</button>
+        </div>`;
+    });
+
+    document.getElementById("total").innerText = total;
+}
+
+function enviar() {
+    let nome = document.getElementById("nome").value;
+
+    if(nome === "") {
+        alert("Coloca seu nome 😅");
+        return;
+    }
+
+    if(carrinho.length === 0) {
+        alert("Carrinho vazio!");
+        return;
+    }
+
+    let msg = `Pedido - ${nome}%0A`;
+
+    carrinho.forEach(item => {
+        msg += `- ${item.nome} (${item.tamanho})%0A`;
+    });
+
+    msg += `%0ATotal: R$ ${total}`;
+
+    let numero = "556492922978"; // MUDA AQUI
+
+    window.open(`https://wa.me/${numero}?text=${msg}`);
+}
+
+// HORÁRIO (18h às 23h)
+let hora = new Date().getHours();
+let status = document.getElementById("status");
+
+if(hora < 18 || hora > 23) {
+    status.innerHTML = "<div class='fechado'>Estamos fechados</div>";
+}
+</script>
+
+</body>
+</html>
