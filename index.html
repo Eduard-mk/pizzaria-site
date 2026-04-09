@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pizzaria Donninha</title>
+<title>Pizzaria</title>
 
 <style>
 body {
@@ -15,25 +15,24 @@ body {
 header {
     background: #ea1d2c;
     color: white;
-    padding: 15px;
     text-align: center;
+    padding: 15px;
 }
 
 .container {
     padding: 15px;
 }
 
-.item {
-    background: white;
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 10px;
+.categoria {
+    margin-top: 15px;
+    font-weight: bold;
 }
 
-select, input {
-    margin-top: 5px;
-    padding: 5px;
-    width: 100%;
+.item {
+    background: white;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
 }
 
 button {
@@ -41,7 +40,7 @@ button {
     color: white;
     border: none;
     padding: 8px;
-    margin-top: 8px;
+    margin-top: 5px;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -55,18 +54,11 @@ button {
     border-top: 2px solid #ccc;
 }
 
-.btn-wpp {
+.btn {
     background: #25d366;
     width: 100%;
     padding: 12px;
     font-size: 16px;
-}
-
-.fechado {
-    background: red;
-    color: white;
-    text-align: center;
-    padding: 10px;
 }
 </style>
 </head>
@@ -77,58 +69,61 @@ button {
     <h2>🍕 Pizzaria Donninha</h2>
 </header>
 
-<div id="status"></div>
-
 <div class="container">
 
 <input type="text" id="nome" placeholder="Seu nome">
 
+<div class="categoria">Tradicionais</div>
+
 <div class="item">
-    <b>Calabresa</b><br>
-    <select id="tam1">
-        <option value="45">Pequena - R$45</option>
-        <option value="55">Média - R$55</option>
-        <option value="65">Grande - R$65</option>
-    </select>
-    <button onclick="add('Calabresa','tam1')">Adicionar</button>
+Calabresa - R$45
+<button onclick="add('Calabresa',45)">Adicionar</button>
 </div>
 
 <div class="item">
-    <b>Frango c/ Catupiry</b><br>
-    <select id="tam2">
-        <option value="65">Pequena - R$65</option>
-        <option value="75">Média - R$75</option>
-        <option value="85">Grande - R$85</option>
-    </select>
-    <button onclick="add('Frango c/ Catupiry','tam2')">Adicionar</button>
+Portuguesa - R$45
+<button onclick="add('Portuguesa',45)">Adicionar</button>
+</div>
+
+<div class="categoria">Especiais</div>
+
+<div class="item">
+Mussarela, frango, orégano - R$65
+<button onclick="add('Especial Frango',65)">Adicionar</button>
+</div>
+
+<div class="item">
+Moda da Casa - R$65
+<button onclick="add('Moda da Casa',65)">Adicionar</button>
+</div>
+
+<div class="categoria">Combos</div>
+
+<div class="item">
+Combo Dupla - R$99.90
+<button onclick="add('Combo Dupla',99.9)">Adicionar</button>
+</div>
+
+<div class="item">
+Combo Econômico - R$78.90
+<button onclick="add('Combo Econômico',78.9)">Adicionar</button>
 </div>
 
 </div>
 
 <div class="carrinho">
-    <div id="lista"></div>
-    <b>Total: R$ <span id="total">0</span></b><br><br>
-    <button class="btn-wpp" onclick="enviar()">Enviar Pedido</button>
+<div id="lista"></div>
+<b>Total: R$ <span id="total">0</span></b><br><br>
+<button class="btn" onclick="enviar()">Enviar no WhatsApp</button>
 </div>
 
 <script>
 let carrinho = [];
 let total = 0;
 
-function add(nome, selectId) {
-    let select = document.getElementById(selectId);
-    let preco = parseFloat(select.value);
-    let tamanho = select.options[select.selectedIndex].text;
-
-    carrinho.push({nome, tamanho, preco});
+function add(nome, preco) {
+    carrinho.push({nome, preco});
     total += preco;
-
-    atualizar();
-}
-
-function remover(index) {
-    total -= carrinho[index].preco;
-    carrinho.splice(index, 1);
     atualizar();
 }
 
@@ -139,7 +134,7 @@ function atualizar() {
     carrinho.forEach((item, i) => {
         lista.innerHTML += `
         <div>
-            ${item.nome} (${item.tamanho})
+            ${item.nome}
             <button onclick="remover(${i})">❌</button>
         </div>`;
     });
@@ -147,38 +142,31 @@ function atualizar() {
     document.getElementById("total").innerText = total;
 }
 
+function remover(i) {
+    total -= carrinho[i].preco;
+    carrinho.splice(i,1);
+    atualizar();
+}
+
 function enviar() {
     let nome = document.getElementById("nome").value;
 
     if(nome === "") {
-        alert("Coloca seu nome 😅");
-        return;
-    }
-
-    if(carrinho.length === 0) {
-        alert("Carrinho vazio!");
+        alert("Digite seu nome!");
         return;
     }
 
     let msg = `Pedido - ${nome}%0A`;
 
     carrinho.forEach(item => {
-        msg += `- ${item.nome} (${item.tamanho})%0A`;
+        msg += `- ${item.nome}%0A`;
     });
 
     msg += `%0ATotal: R$ ${total}`;
 
-    let numero = "556492922978"; // MUDA AQUI
+    let numero = "556492922978"; // TROCA AQUI
 
     window.open(`https://wa.me/${numero}?text=${msg}`);
-}
-
-// HORÁRIO (18h às 23h)
-let hora = new Date().getHours();
-let status = document.getElementById("status");
-
-if(hora < 18 || hora > 23) {
-    status.innerHTML = "<div class='fechado'>Estamos fechados</div>";
 }
 </script>
 
